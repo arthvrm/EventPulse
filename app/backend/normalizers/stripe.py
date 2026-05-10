@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 from .base import BaseNormalizer
-from ..schemas.processed_event import ProcessedEvent
-from ..schemas.raw_event import RawEvent
+from schemas.processed_event import ProcessedEvent
+from schemas.raw_event import RawEvent
 
 
 class StripeNormalizer(BaseNormalizer):

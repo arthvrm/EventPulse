@@ -1,5 +1,5 @@
-from paypal import PayPalNormalizer
-from stripe import StripeNormalizer
+from .paypal import PayPalNormalizer
+from .stripe import StripeNormalizer
 
 NORMALIZERS = {
     "stripe": StripeNormalizer(),

@@ -1,5 +1,5 @@
 from fastapi import Request
-from ..schemas.contexts import RequestContext
+from schemas.contexts import RequestContext
 
 
 def get_context(request: Request) -> RequestContext:

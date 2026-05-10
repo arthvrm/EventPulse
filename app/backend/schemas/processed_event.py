@@ -17,10 +17,10 @@ class ProcessedEvent(BaseModel):
     currency: str
     fee: Optional[Decimal] = None
     net_amount: Optional[Decimal] = None
-    payment_id: Optional[str] = None
     order_id: Optional[str] = None
     customer_id: Optional[str] = None
     failure_reason: Optional[str] = None
+    processing_error: Optional[str] = None
     
     provider_created_at: datetime
     received_at: datetime  # Revenue Aggregation
@@ -28,4 +28,4 @@ class ProcessedEvent(BaseModel):
     
     latency_ms: Optional[int] = None
     
-    processing_error: Optional[str]
+    processing_error: Optional[str] = None

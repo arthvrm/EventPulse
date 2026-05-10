@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 from .base import BaseNormalizer
-from ..schemas.processed_event import ProcessedEvent
-from ..schemas.raw_event import RawEvent
+from schemas.processed_event import ProcessedEvent
+from schemas.raw_event import RawEvent
 
 
 class PayPalNormalizer(BaseNormalizer):
@@ -47,7 +47,7 @@ class PayPalNormalizer(BaseNormalizer):
 
         return ProcessedEvent(
             provider="paypal",
-            payment_id=payload["id"],
+            payment_id=resource["id"],
             event_id=payload["id"],
             event_type=payload["event_type"],
             status=resource["status"],
@@ -55,7 +55,6 @@ class PayPalNormalizer(BaseNormalizer):
             currency=resource["amount"]["currency_code"],
             fee=fee,
             net_amount=net_amount,
-            payment_id=resource["id"],
             order_id=resource.get("custom_id"),
             customer_id=resource["payer"]["payer_id"],
             failure_reason=(

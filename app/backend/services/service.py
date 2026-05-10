@@ -2,9 +2,10 @@ import logging
 
 from pathlib import Path
 
-from ..schemas.raw_event import RawEvent
-from ..schemas.processed_event import ProcessedEvent
-from ..db.repository import EventRepository
+from schemas.raw_event import RawEvent
+from schemas.processed_event import ProcessedEvent
+from db.repository import EventRepository
+from normalizers import NORMALIZERS
 
 
 logger = logging.getLogger(str(Path(__name__)))
@@ -14,11 +15,11 @@ class WebhookService:
         self.repo = repo
 
     def process_events(self, payload: RawEvent) -> None:
-        logger.info(f"Processing event {payload.event_id}")
+        logger.info(f"Processing event {payload.external_event_id}")
         
         # Idempotency
-        if self.repo.is_processed(payload.event_id):
-            logger.info(f"Event already processed {payload.event_id}")
+        if self.repo.is_processed(payload.external_event_id):
+            logger.info(f"Event already processed {payload.external_event_id}")
             return
 
         # Normalize
@@ -27,19 +28,18 @@ class WebhookService:
 
         # Save
         self.repo.save(event)
-        logger.info(f"Event saved {payload.event_id}")
+        logger.info(f"Event saved {payload.external_event_id}")
 
         # Analytics (поки просто лог)
         self._send_to_analytics(event)
     
     def normalize(self, event: RawEvent) -> ProcessedEvent:
-        logger.info("Normalizing payload", extra={"event_id": event.event_id})
-        return ProcessedEvent(
-            id=event.event_id,
-            type=event.event_type,
-            payload=event.data,
-        )
+        logger.info("Normalizing payload", extra={"event_id": event.external_event_id})
+        normalizer = NORMALIZERS.get(event.provider)
+        if not normalizer:
+            raise ValueError(f"No normalizer for provider {event.provider}")
+        return normalizer.normalize(event)
     
     def _send_to_analytics(self, event: ProcessedEvent) -> None:
-        print(f"[ANALYTICS] Event processed: {event.type}")
-        logger.info(f"Event send to analytics {event.id}")
+        print(f"[ANALYTICS] Event processed: {event.event_type}")
+        logger.info(f"Event send to analytics {event.event_id}")

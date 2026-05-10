@@ -1,12 +1,9 @@
 import logging
 import uuid
-
 from pathlib import Path
-
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request
-
-from ..schemas.contexts import RequestContext
+from schemas.contexts import RequestContext
 
 
 logger = logging.getLogger(str(Path(__name__)))
@@ -27,18 +24,10 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             headers=dict(request.headers),
             query_params=dict(request.query_params),
             raw_body=body,
-            x_signature=request.headers.get("X-Signature")
         )
 
         response = await call_next(request)
         
-        logger.info(
-            "Request completed",
-            extra={
-                "request_id": request_id,
-                "path": request.url.path,
-                "method": request.method,
-            },
-        )
+        logger.info("Request completed")
 
         return response
