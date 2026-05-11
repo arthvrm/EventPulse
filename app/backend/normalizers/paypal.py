@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from .base import BaseNormalizer
-from schemas.processed_event import ProcessedEvent
-from schemas.raw_event import RawEvent
+from app.backend.normalizers.base import BaseNormalizer
+from app.backend.schemas.processed_event import ProcessedEvent
+from app.backend.schemas.raw_event import RawEvent
 
 
 class PayPalNormalizer(BaseNormalizer):

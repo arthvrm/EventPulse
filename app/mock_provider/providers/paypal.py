@@ -1,5 +1,5 @@
-from event_generators.paypal import generate_payload as paypal_generator
-from core.event_provider import EventProvider
+from app.mock_provider.event_generators.paypal import generate_payload as paypal_generator
+from app.mock_provider.core.event_provider import EventProvider
 
 # PayPalMockProvider = lambda secret, webhook_url: EventProvider(
 #     secret,

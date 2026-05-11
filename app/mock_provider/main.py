@@ -1,5 +1,5 @@
 import asyncio
-from factory.factory import ProviderFactory
+from app.mock_provider.factory.factory import ProviderFactory
 
 
 async def run():

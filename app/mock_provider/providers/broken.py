@@ -1,5 +1,5 @@
-from event_generators.broken import generate_payload as broken_generator
-from core.event_provider import EventProvider
+from app.mock_provider.event_generators.broken import generate_payload as broken_generator
+from app.mock_provider.core.event_provider import EventProvider
 
 
 class BrokenProvider(EventProvider):

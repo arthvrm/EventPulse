@@ -3,7 +3,7 @@ import uuid
 from pathlib import Path
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request
-from schemas.contexts import RequestContext
+from app.backend.schemas.contexts import RequestContext
 
 
 logger = logging.getLogger(str(Path(__name__)))

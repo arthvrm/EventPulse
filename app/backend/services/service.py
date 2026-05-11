@@ -2,10 +2,10 @@ import logging
 
 from pathlib import Path
 
-from schemas.raw_event import RawEvent
-from schemas.processed_event import ProcessedEvent
-from db.repository import EventRepository
-from normalizers import NORMALIZERS
+from app.backend.schemas.raw_event import RawEvent
+from app.backend.schemas.processed_event import ProcessedEvent
+from app.backend.db.repository import EventRepository
+from app.backend.normalizers import NORMALIZERS
 
 
 logger = logging.getLogger(str(Path(__name__)))

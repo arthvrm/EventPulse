@@ -1,5 +1,5 @@
-from event_generators.stripe import generate_payload as stripe_generator
-from core.event_provider import EventProvider
+from app.mock_provider.event_generators.stripe import generate_payload as stripe_generator
+from app.mock_provider.core.event_provider import EventProvider
 
 # StripeMockProvider = lambda secret, webhook_url: MockProvider(
 #     secret,

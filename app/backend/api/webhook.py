@@ -4,12 +4,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
 
-from schemas.contexts import RequestContext
-from etc.dependencies import get_context
-from schemas.raw_event import RawEvent
-from etc.security import verify_hmac_signature
-from services.service import WebhookService
-from db.repository import EventRepository
+from app.backend.schemas.contexts import RequestContext
+from app.backend.etc.dependencies import get_context
+from app.backend.schemas.raw_event import RawEvent
+from app.backend.etc.security import verify_hmac_signature
+from app.backend.services.service import WebhookService
+from app.backend.db.repository import EventRepository
 
 
 logger = logging.getLogger(str(Path(__name__)))

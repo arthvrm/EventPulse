@@ -1,9 +1,9 @@
 from typing import Type, Optional
 
-from base.base import AbstractProvider
-from providers.stripe import StripeMockProvider
-from providers.paypal import PayPalMockProvider
-from providers.broken import BrokenProvider
+from app.mock_provider.base.base import AbstractProvider
+from app.mock_provider.providers.stripe import StripeMockProvider
+from app.mock_provider.providers.paypal import PayPalMockProvider
+from app.mock_provider.providers.broken import BrokenProvider
 
 
 class ProviderFactory:

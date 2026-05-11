@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, ROUND_HALF_UP
 
-from .event_collections import (
+from app.mock_provider.event_generators.event_collections import (
     STRIPE_EVENT_STATUS_MAP,
     STRIPE_FAILURE_REASON_MAP,
     NAMES,

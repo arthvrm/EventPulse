@@ -1,5 +1,5 @@
 from typing import Set
-from schemas.processed_event import ProcessedEvent
+from app.backend.schemas.processed_event import ProcessedEvent
 
 
 class EventRepository:

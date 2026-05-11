@@ -1,7 +1,7 @@
 from typing import Dict, Any, Callable
-from base.base import AbstractProvider
-from services.hmac_service import HMACService
-from services.webhook_sender import WebhookSender
+from app.mock_provider.base.base import AbstractProvider
+from app.mock_provider.services.hmac_service import HMACService
+from app.mock_provider.services.webhook_sender import WebhookSender
 
 
 class EventProvider(AbstractProvider):
