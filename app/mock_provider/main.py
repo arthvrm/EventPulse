@@ -1,6 +1,12 @@
 import asyncio
+import os
+from dotenv import load_dotenv
 from app.mock_provider.factory.factory import ProviderFactory
 
+load_dotenv()
+SECRET = os.getenv("WEBHOOK_SECRET")
+if not SECRET:
+    raise ValueError("WEBHOOK_SECRET is required. Set it in the .env file or environment.")
 
 async def run():
     while True:
@@ -16,7 +22,7 @@ async def run():
 
         provider = ProviderFactory.create(
             provider_type=provider_type,
-            secret="supersecret",
+            secret=SECRET,
             webhook_url="http://localhost:8000/webhook"
         )
         
