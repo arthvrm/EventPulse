@@ -138,7 +138,7 @@ Run all commands from the project root.
 uv sync
 ```
 
-2. **Clone and setup environment:**
+1. **Clone and setup environment:**
 ```powershell
 # Create .env file with your configuration
 cp .env.example .env
