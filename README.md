@@ -42,7 +42,7 @@ alembic revision --autogenerate -m "create initial schema"
 alembic upgrade head
 ```
 
-The connection URL is loaded from `app.backend.db.database.DATABASE_URL`, which by default uses the `DATABASE_URL` environment variable.
+Alembic reads the migration database URL from `ALEMBIC_DATABASE_URL` in `.env` if provided; otherwise, it falls back to the value stored in `alembic.ini`.
 
 ## Project Structure
 
@@ -57,8 +57,9 @@ Sensitive configuration values are stored in `.env`. A sample file is available 
 
 Required variables:
 
-- `DATABASE_URL` — async database connection string
+- `DATABASE_URL` — async database connection string for the backend
 - `WEBHOOK_SECRET` — shared HMAC secret for incoming webhook verification and mock provider signing
+- `ALEMBIC_DATABASE_URL` — Alembic-only database URL for migrations
 
 ## Data Analysis Note
 
