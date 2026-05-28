@@ -14,11 +14,14 @@ class WebhookService:
     def __init__(self, repo: EventRepository) -> None:
         self.repo = repo
 
-    def process_events(self, payload: RawEvent) -> None:
+    async def process_events(self, payload: RawEvent) -> None:
         logger.info(f"Processing event {payload.external_event_id}")
         
+        # Save raw event
+        await self.repo.save_raw_event(payload)
+        
         # Idempotency
-        if self.repo.is_processed(payload.external_event_id):
+        if await self.repo.is_processed(payload.external_event_id):
             logger.info(f"Event already processed {payload.external_event_id}")
             return
 
@@ -26,8 +29,8 @@ class WebhookService:
         event = self.normalize(payload)
         logger.info("Payload normalized", extra={"event_id": event.event_id})    # extra for json logger output
 
-        # Save
-        self.repo.save(event)
+        # Save processed event
+        await self.repo.save_processed_event(event)
         logger.info(f"Event saved {payload.external_event_id}")
 
         # Analytics (поки просто лог)

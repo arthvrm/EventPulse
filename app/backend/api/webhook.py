@@ -1,30 +1,35 @@
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backend.schemas.contexts import RequestContext
-from app.backend.etc.dependencies import get_context
+from app.backend.etc.dependencies import get_context, get_db_session
 from app.backend.schemas.raw_event import RawEvent
 from app.backend.etc.security import verify_hmac_signature
 from app.backend.services.service import WebhookService
 from app.backend.db.repository import EventRepository
+
+load_dotenv()
+
+SECRET = os.getenv("WEBHOOK_SECRET")
+if not SECRET:
+    raise ValueError("WEBHOOK_SECRET is required. Set it in the .env file or environment.")
 
 
 logger = logging.getLogger(str(Path(__name__)))
 
 router = APIRouter()
 
-SECRET = "supersecret"
-
-repo = EventRepository()
-service = WebhookService(repo)
-
 
 @router.post("/webhook")
 async def receive_webhook(
     context: RequestContext = Depends(get_context),
+    session: AsyncSession = Depends(get_db_session),
 ):
     logger.info(
         f"Webhook received. id: {context.request_id}",
@@ -83,9 +88,13 @@ async def receive_webhook(
         received_at=datetime.now(timezone.utc),
     )
     
+    # Create repo and service
+    repo = EventRepository(session)
+    service = WebhookService(repo)
+    
     # Process
     try:
-        service.process_events(raw_event)
+        await service.process_events(raw_event)
     except Exception as e:
         logger.error("Error processing event", exc_info=e)
         raise HTTPException(status_code=500, detail="Internal error")
@@ -93,46 +102,3 @@ async def receive_webhook(
     logger.info(f"Webhook processed successfully event_id={raw_event.external_event_id}")
 
     return {"status": "ok"}
-    
-
-
-
-# :
-#     logger.info(
-#         f"Webhook received. id: {context.request_id}",
-#         extra={
-#             "request_id": context.request_id,
-#             "client_ip": context.client_ip,
-#             "headers": context.headers,
-#             "query_params": context.query_params,
-#             "body": context.raw_body.decode("utf-8"),
-#             "signature": context.x_signature,
-#         }
-#     )
-    
-#     # HMAC verify
-#     if not verify_hmac_signature(SECRET, context.raw_body, context.x_signature):
-#         logger.warning("Invalid HMAC signature")
-#         raise HTTPException(status_code=401, detail="Invalid signature")
-    
-#     logger.info("Verified HMAC signature")
-
-#     # Validation
-#     try:
-#         payload = RawEvent()
-#         logger.info("Payload validated")
-#     except Exception as e:
-#         logger.warning("Payload validation failed", exc_info=e)
-#         raise HTTPException(status_code=400, detail="Invalid payload")
-
-#     # Process
-#     try:
-#         service.process_events(payload)
-#     except Exception as e:
-#         logger.error("Error processing event", exc_info=e)
-#         raise HTTPException(status_code=500, detail="Internal error")
-    
-#     logger.info(f"Webhook processed successfully event_id={payload.event_id}")
-
-#     return {"status_code": 200}
-
