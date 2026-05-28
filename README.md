@@ -132,7 +132,13 @@ Run all commands from the project root.
 
 ### Local Development
 
-1. **Clone and setup environment:**
+0. **Venv**
+```powershell
+# Create .venv from pyproject.toml
+uv sync
+```
+
+2. **Clone and setup environment:**
 ```powershell
 # Create .env file with your configuration
 cp .env.example .env
