@@ -11,7 +11,7 @@ It focuses on reliability, observability, and integration stability, and include
 
 * 🔐 HMAC SHA256 signature verification
 * ♻ Idempotent event processing
-* � Database persistence (async SQLAlchemy + Alembic migrations)
+* 🗄 Database persistence (async SQLAlchemy + Alembic migrations)
 * 📊 Analytics-ready data model
 * 📜 Structured logging
 * 🧪 Testing support with pytest + asyncio
@@ -140,8 +140,7 @@ uv sync
 
 1. **Clone and setup environment:**
 ```powershell
-# Create .env file with your configuration
-cp .env.example .env
+copy .env.example .env
 # Update DATABASE_URL and WEBHOOK_SECRET in .env
 ```
 
@@ -152,13 +151,13 @@ alembic upgrade head
 
 3. **Run Backend:**
 ```powershell
-uv run uvicorn app.backend.main:app --host 0.0.0.0 --port 8000 --reload
+python -m app.backend.main --local
 ```
 FastAPI documentation will be available at: `http://localhost:8000/docs`
 
 4. **Run Mock Provider (in another terminal):**
 ```powershell
-uv run -m app.mock_provider.main
+python -m app.mock_provider.main
 ```
 This starts an interactive CLI to generate and send test webhook events.
 
