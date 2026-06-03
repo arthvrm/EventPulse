@@ -161,6 +161,19 @@ python -m app.mock_provider.main
 ```
 This starts an interactive CLI to generate and send test webhook events.
 
+### Docker Development
+
+1. **Start services with Docker Compose:**
+
+```powershell
+docker-compose up --build
+```
+
+Before running the containers, update your `.env` file according to the notes provided in `.env.example` (e.g., replace `localhost` with `postgres` for Docker).
+
+This command starts PostgreSQL, applies migrations, and runs the backend on `http://localhost:8000`.
+
+
 ---
 
 ## 🗄 Database Migrations
