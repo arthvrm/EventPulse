@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: eventpulse_admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: eventpulse
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    command: >
+      sh -c "
+      until pg_isready -h postgres -p 5432 -U eventpulse_admin; do
+        echo 'waiting for postgres...';
+        sleep 1;
+      done;
+      alembic upgrade head;
+      python -m app.backend.main --docker
+      "
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
