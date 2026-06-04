@@ -1,270 +1,428 @@
 # ⚡ EventPulse
 
-> Reliable webhook processing, normalization, and integration monitoring platform.
+> Reliable webhook ingestion, normalization, and payment event processing platform.
 
-EventPulse is a backend system designed to receive, verify, normalize, process, and analyze webhook events from external services (including payment providers).
-It focuses on reliability, observability, and integration stability, and includes a built-in mock provider for testing webhook flows.
+EventPulse is an asynchronous backend system built with FastAPI for receiving, validating, normalizing, and tracking webhook events from external providers such as Stripe and PayPal.
+
+The platform focuses on reliability, security, observability, and integration stability while providing a unified event model for downstream processing and analytics.
+
+To simplify local development and integration testing, EventPulse includes a built-in mock provider capable of generating and signing realistic webhook events.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-* 🔐 HMAC SHA256 signature verification
-* ♻ Idempotent event processing
-* 🗄 Database persistence (async SQLAlchemy + Alembic migrations)
+* 🔐 HMAC SHA256 webhook signature verification
+* ♻️ Idempotent event processing
+* 🔄 Provider-independent event normalization
+* ⚡ Fully asynchronous architecture
+* 🗄 PostgreSQL persistence with SQLAlchemy Async
 * 📊 Analytics-ready data model
-* 📜 Structured logging
-* 🧪 Testing support with pytest + asyncio
-* 🧪 Mock provider for generating webhook events
-* 🔀 Event normalization across provider formats (PayPal, Stripe)
+* 📜 Structured logging with request tracing
+* 🧪 Unit and integration testing
+* 🚀 Built-in webhook simulator
+* 🐳 Dockerized development environment
 
 ---
 
-## 🏗 Architecture Overview
+## 🏗 Architecture
 
-EventPulse consists of two main components:
+            ┌──────────────────────┐
+            │ Provider             │
+            │ (Stripe / PayPal)    │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ FastAPI Webhook API  │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Signature Verification│
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Provider Detection   │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Idempotency          │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Event Normalization  │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Persistence          │
+            └─────────┬────────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Analytics Pipeline   │
+            └──────────────────────┘
 
-### Backend (`app.backend`)
+### Components
 
-* FastAPI-based async webhook receiver
-* Webhook signature verification (HMAC SHA256)
-* Payload parsing and validation
-* Event normalization layer (PayPal, Stripe)
-* Persistence layer (async SQLAlchemy)
-* Processing pipeline with event tracking
-* Structured logging with request context
-* Database models supporting analytics data collection
+#### Backend (`app.backend`)
 
-### Mock Provider (`app.mock_provider`)
+Responsible for:
 
-* Interactive CLI for selecting and testing webhook providers
-* Generates realistic mock payloads for PayPal and Stripe
-* Signs requests with HMAC SHA256 using the shared secret
-* Sends signed webhook requests to the backend
-* Useful for local development, integration testing, and validating webhook flows
+* Receiving webhook requests
+* Verifying signatures
+* Validating payloads
+* Detecting providers
+* Normalizing events
+* Persisting data
+* Tracking payment states
+* Producing structured logs
 
-### Supporting Infrastructure
+#### Mock Provider (`app.mock_provider`)
 
-* **PostgreSQL** with async driver (asyncpg)
-* **Alembic** for database version control and migrations
-* **Environment-based configuration** (.env)
-* **Structured logging** with request context tracking
+Provides:
+
+* Interactive CLI
+* PayPal and Stripe event generation
+* HMAC request signing
+* End-to-end webhook testing
+* Invalid event simulation for error scenarios
 
 ---
 
-## 📡 How It Works
+## 🔄 Event Processing Flow
 
-1. External service (or mock provider) sends a signed webhook request
-2. EventPulse receives the request and extracts the payload
-3. HMAC SHA256 signature is verified against the shared secret
-4. Payload is parsed and validated
-5. Provider type is detected (PayPal, Stripe, or unknown)
-6. Event ID is checked for idempotency
-7. Event is normalized into a unified schema and stored in the database
-8. Processing pipeline extracts payment metadata and updates payment records
-9. Metrics and logs are recorded for observability
-10. Response is returned to the webhook sender
+1. Provider sends a signed webhook request.
+2. EventPulse verifies the HMAC SHA256 signature.
+3. The payload is parsed and validated.
+4. Provider type is detected.
+5. Event idempotency is checked.
+6. Data is normalized into a unified schema.
+7. Raw and processed events are stored.
+8. Payment state is updated.
+9. Logs and metrics are recorded.
+10. A response is returned to the sender.
 
 ---
 
-## 📊 Analytics Capabilities
+## 📌 Supported Providers
 
-Database models are designed to support:
-
-* Total events per day / provider
-* Success / failure rates and error patterns
-* Processing latency metrics
-* Provider-level performance breakdown
-* Customer and order aggregation
-* Fee and net amount analysis
-
-_Full analytics and reporting endpoints are planned for future releases._
+| Provider | Status      |
+| -------- | ----------- |
+| Stripe   | ✅ Supported |
+| PayPal   | ✅ Supported |
+| Wise     | 🚧 Planned  |
+| Square   | 🚧 Planned  |
 
 ---
 
 ## 🛠 Tech Stack
 
-* Python 3.12+
-* FastAPI (async)
-* Async SQLAlchemy + asyncpg
-* Alembic (migrations)
-* Pydantic
-* pytest + pytest-asyncio
-* httpx (async HTTP client)
-* Structured logging
+| Category         | Technology             |
+| ---------------- | ---------------------- |
+| Language         | Python 3.12            |
+| API              | FastAPI                |
+| ORM              | SQLAlchemy 2.0 Async   |
+| Database         | PostgreSQL             |
+| Database Driver  | asyncpg                |
+| Validation       | Pydantic               |
+| Migrations       | Alembic                |
+| HTTP Client      | httpx                  |
+| Testing          | pytest, pytest-asyncio |
+| Containerization | Docker, Docker Compose |
 
 ---
 
-## 🔒 Security
+## 🚀 Quick Start
 
-* **HMAC SHA256 verification** — All incoming webhooks must be signed with the shared secret
-* **Signature validation** — Requests without valid signatures are rejected with 401 Unauthorized
-* **Idempotency** — Event IDs are checked to prevent duplicate processing
-* **Payload validation** — Pydantic schemas validate all incoming data
-* **Secret-based webhook signing** — Mock provider signs requests using `WEBHOOK_SECRET`
+### Requirements
+
+* Python 3.12+
+* PostgreSQL
+* uv package manager
+
+### Installation
+
+```bash
+git clone <repository-url>
+cd eventpulse
+
+uv sync
+```
+
+Create environment configuration:
+
+```bash
+copy .env.example .env
+```
+
+Configure:
+
+```env
+DATABASE_URL=postgresql+asyncpg://user:password@localhost/eventpulse
+WEBHOOK_SECRET=your-secret-key
+```
+
+Apply migrations:
+
+```bash
+alembic upgrade head
+```
+
+Start the backend:
+
+```bash
+python -m app.backend.main --local
+```
+
+Swagger documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+Start the mock provider in a separate terminal:
+
+```bash
+python -m app.mock_provider.main
+```
+
+---
+
+## 🐳 Running with Docker
+
+Start the entire stack:
+
+```bash
+docker-compose up --build
+```
+
+This will:
+
+* Start PostgreSQL
+* Apply Alembic migrations
+* Launch the FastAPI application
+* Expose the API on `http://localhost:8000`
 
 ---
 
 ## ⚙️ Configuration
 
-All sensitive configuration is stored in `.env`. A sample configuration file is available as `.env.example`.
+### Required Environment Variables
 
-### Required variables:
+| Variable         | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| `DATABASE_URL`   | PostgreSQL connection string                     |
+| `WEBHOOK_SECRET` | Secret used for webhook signing and verification |
 
-* `DATABASE_URL` — async PostgreSQL connection string (e.g., `postgresql+asyncpg://user:password@localhost/dbname`)
-* `WEBHOOK_SECRET` — shared secret for webhook signing/verification and HMAC validation
+Example:
 
-### Optional variables:
-
-* `ALEMBIC_DATABASE_URL` — database URL used by migrations (defaults to `DATABASE_URL` if not set)
+```env
+DATABASE_URL=postgresql+asyncpg://eventpulse_admin:password@localhost:5432/eventpulse
+WEBHOOK_SECRET=your-super-secret-key
+```
 
 ---
 
-## 🚀 Getting Started
+## 🔒 Security
 
-Run all commands from the project root.
+EventPulse implements several reliability and security mechanisms:
 
-### Prerequisites
+### Webhook Authentication
 
-* Python 3.12+
-* PostgreSQL database
-* `uv` package manager (or pip with virtual environment)
+Incoming requests are protected using HMAC SHA256 signatures.
 
-### Local Development
-
-0. **Venv**
-```powershell
-# Create .venv from pyproject.toml
-uv sync
+```text
+signature = HMAC_SHA256(secret_key, payload)
 ```
 
-1. **Clone and setup environment:**
-```powershell
-copy .env.example .env
-# Update DATABASE_URL and WEBHOOK_SECRET in .env
+Requests with invalid signatures are rejected with:
+
+```http
+401 Unauthorized
 ```
 
-2. **Run database migrations:**
-```powershell
-alembic upgrade head
-```
+### Idempotent Processing
 
-3. **Run Backend:**
-```powershell
-python -m app.backend.main --local
-```
-FastAPI documentation will be available at: `http://localhost:8000/docs`
+Duplicate webhook deliveries are prevented through:
 
-4. **Run Mock Provider (in another terminal):**
-```powershell
-python -m app.mock_provider.main
-```
-This starts an interactive CLI to generate and send test webhook events.
+* Event-level idempotency checks
+* Database uniqueness constraints
+* Provider event identifiers
 
-### Docker Development
+### Payload Validation
 
-1. **Start services with Docker Compose:**
+All incoming data is validated using Pydantic models before entering the processing pipeline.
 
-```powershell
-docker-compose up --build
-```
+### Additional Safeguards
 
-Before running the containers, update your `.env` file according to the notes provided in `.env.example` (e.g., replace `localhost` with `postgres` for Docker).
-
-This command starts PostgreSQL, applies migrations, and runs the backend on `http://localhost:8000`.
-
+* Timing-safe signature comparison
+* Structured error handling
+* SQL injection protection through SQLAlchemy ORM
+* Decimal-based monetary calculations
+* Timezone-aware timestamps
 
 ---
 
-## 🗄 Database Migrations
+## 📊 Data Model
 
-Alembic is used for schema version control and migrations.
+The platform stores three categories of information:
 
-### Apply existing migrations:
+### Raw Events
 
-```powershell
-alembic upgrade head
-```
+Original webhook payloads are preserved for:
 
-### Create a new migration after model changes:
+* Auditing
+* Debugging
+* Event replay
+* Incident investigation
 
-```powershell
-alembic revision --autogenerate -m "your migration description"
-alembic upgrade head
-```
+### Processed Events
 
-### Configuration:
+Provider-specific events are transformed into a unified schema suitable for:
 
-Alembic reads the database URL from:
-* `DATABASE_URL` or `ALEMBIC_DATABASE_URL` in `.env` (environment variables have priority)
-* fallback: `alembic.ini`
+* Analytics
+* Reporting
+* Monitoring
+* Business workflows
+
+### Payment State
+
+A denormalized payment view maintains the latest known state of each payment for fast access.
 
 ---
 
 ## 🧪 Testing
 
-* Tests are located in the `tests/` directory
-* Framework: pytest + pytest-asyncio for async testing
-* Test coverage includes API, normalization, repository, and security modules
-
-### Run tests:
+Run all tests:
 
 ```bash
-pytest                                # Run all tests
-pytest -v                            # Verbose output
-pytest tests/test_api.py            # Run specific test file
-pytest -k test_webhook              # Run tests matching a pattern
+pytest
 ```
+
+Verbose output:
+
+```bash
+pytest -v
+```
+
+Run a specific file:
+
+```bash
+pytest tests/test_api.py
+```
+
+Run matching tests:
+
+```bash
+pytest -k webhook
+```
+
+Current test coverage includes:
+
+* Webhook API behavior
+* HMAC verification
+* Event normalization
+* Error handling
+* Provider detection
+
+---
+
+## 🎯 Engineering Highlights
+
+This project demonstrates several production-oriented backend engineering practices.
+
+### Reliable Webhook Processing
+
+Duplicate webhook deliveries are handled through event idempotency checks and database-level uniqueness constraints.
+
+### Provider Abstraction
+
+The normalization layer uses the Strategy pattern, allowing new providers to be integrated with minimal changes to the processing pipeline.
+
+### Security First
+
+Webhook requests are protected using HMAC SHA256 verification and timing-safe signature comparison.
+
+### Full Async Stack
+
+The entire platform is asynchronous, using:
+
+* FastAPI
+* SQLAlchemy Async
+* asyncpg
+* httpx
+
+This enables efficient handling of high-concurrency webhook workloads.
+
+### Observability
+
+Structured logging and request tracing provide visibility across the entire processing pipeline.
+
+### Testability
+
+Repository abstraction, dependency injection, and isolated normalization logic make the system easy to test and maintain.
 
 ---
 
 ## 📁 Project Structure
 
-* `app/backend/api` — FastAPI routes (webhook receiver)
-* `app/backend/db` — SQLAlchemy models, database setup, and repository layer
-* `app/backend/normalizers` — Event normalization adapters (PayPal, Stripe)
-* `app/backend/schemas` — Pydantic models for validation (raw events, processed events)
-* `app/backend/services` — Business logic and processing pipeline
-* `app/backend/etc` — Configuration, logging, middleware, security utilities, dependencies
-* `app/mock_provider` — Interactive webhook provider simulator
-  * `event_generators` — Mock event payload generators
-  * `providers` — Provider implementations (PayPal, Stripe, broken)
-  * `services` — HMAC signing and webhook sending services
-  * `factory` — Factory for creating provider instances
-* `tests` — Unit and integration tests
-* `alembic` — Database migrations and version control
+```text
+app/
+├── backend/
+│   ├── api/
+│   ├── db/
+│   ├── normalizers/
+│   ├── schemas/
+│   ├── services/
+│   └── etc/
+│
+├── mock_provider/
+│   ├── event_generators/
+│   ├── providers/
+│   ├── services/
+│   └── factory/
+│
+tests/
+alembic/
+```
 
 ---
 
-## 🎯 Project Goals
+## 🚧 Roadmap
 
-EventPulse was built to explore and implement:
-
-* Event-driven architecture
-* Reliable webhook ingestion
-* Integration resilience patterns
-* Observability and monitoring design
-* Data normalization across external providers
-* Backend reliability engineering
-
----
-
-## 📌 Future Improvements
-
-* Retry mechanism with exponential backoff for failed events
-* Message queue integration (RabbitMQ / Redis)
-* Admin API for manual event management and reprocessing
+* Retry mechanism with exponential backoff
+* Event replay functionality
+* RabbitMQ / Redis integration
 * Prometheus metrics exporter
-* Analytics dashboard and reporting endpoints
-* Web dashboard UI
-* Support for additional payment providers
-* Horizontal scaling and worker separation
-* Webhook event replay functionality
-* Custom transformation rules engine
+* Analytics API
+* Administrative dashboard
+* Additional provider integrations
+* Horizontal scaling support
+* Custom transformation rules
 
 ---
 
-## 👤 Author
+## 👨‍💻 Author
 
-Arthur Mykhailyshyn
-Backend Developer (Python / FastAPI)
+**Arthur Mykhailyshyn**
+
+Python Backend Developer
+
+---
+
+### Key Concepts Demonstrated
+
+* Event-Driven Architecture
+* Async Backend Development
+* Webhook Processing
+* Payment Integrations
+* Security Best Practices
+* Database Design
+* Design Patterns
+* Observability
+* Dockerized Infrastructure
